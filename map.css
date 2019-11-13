@@ -11,6 +11,11 @@
     stroke: red;
 }
 
+.date.label {
+    font: 500 85px "Helvetica Neue";
+    fill: #ddd;
+  }
+
 /* slider styling */
 
 .slider {
