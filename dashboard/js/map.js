@@ -180,8 +180,7 @@ class Map
     playMapAnimation()
     {
         this.animationInterval = setInterval(() => {
-            this.selectedDate += 60000;
-            this.updateMap(this.cyberAttackDataCSV);
+            this.datePicker.date = 60000;
         }, 50);
         this.animationRunning = true;
         this.playBtn.text("Stop Animation");

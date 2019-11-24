@@ -18,9 +18,7 @@ class DatePicker {
 
         this.formatPercent = d3.format(".1%");
 
-        this.color = d3.scaleQuantize()
-            .domain([0, 100])
-            .range(["#ffffff", "#e6f7ff", "#b3e6ff", "#99ddff", "#66ccff", "#4dc3ff", "#1ab2ff", "#0077b3", "#004466"]);
+        this.colorScale = null;
 
         this.months = [];
 
@@ -37,8 +35,28 @@ class DatePicker {
         return this.selectedDateInMilliseconds;
     }
 
+    set date(newDate)
+    {
+        this.selectedDateInMilliseconds += newDate;
+        this.selectedDateChanged(this.selectedDateInMilliseconds);
+        this.updateDatePicker();
+    }
+
     drawDatePicker() {
         const that = this;
+
+        let attacksPerDay = [], minAttacks, maxAttacks;
+
+        this.cyberAttackDataCSV.forEach(day => {
+            attacksPerDay.push(day.values.length);
+        })
+
+        minAttacks = d3.min(attacksPerDay);
+        maxAttacks = d3.max(attacksPerDay);
+
+        this.colorScale = d3.scaleLinear()
+            .domain([minAttacks, maxAttacks / 3, maxAttacks])
+            .range(["white", "red", "darkred"]);
 
         // Create and add Month objects that correspond with the dataset
         this.months.push(new Month("March",  new Date(2013, 2, 1)));
@@ -103,7 +121,7 @@ class DatePicker {
         const formatDate = d3.timeFormat("%b-%d-%y");
 
         // Create a group for each day of the month
-        const gRects = g.enter()
+        const gGroups = g.enter()
             .append("g")
             .attr("class", "date-group")
             .attr("transform", function (d) {
@@ -111,15 +129,20 @@ class DatePicker {
                 const y = (d3.timeWeek.count(d3.timeMonth(d), d) * that.cellSize);
                 return "translate(" + x + "," + y + ")";
             })
+            .style("fill", d => {
+                for (let attack of this.cyberAttackDataCSV)
+                    if (Date.parse(d) === Date.parse(attack.key))
+                        return that.colorScale(attack.values.length);
+            })
             .on("click", d => {
                 this.selectedDateInMilliseconds = Date.parse(d);
                 this.selectedDateChanged(this.selectedDateInMilliseconds);
-                gRects.select("rect").classed("selected", false);
+                gGroups.select("rect").classed("selected", false);
                 d3.select(`#${formatDate(d)}-rect`).classed("selected", true);
             });
 
         // Add a rectangle to each corresponding group that represents a single day
-        gRects.append("rect")
+        gGroups.append("rect")
             .attr("id", d => {
                 return formatDate(d) + "-rect";
             })
@@ -131,7 +154,7 @@ class DatePicker {
             .datum(d3.timeFormat("%Y-%m-%d"));
 
         // Add the text for the date of the corrsponding day in the single month
-        gRects.append("text")
+        gGroups.append("text")
             .text(function (d) {
                 return d.getDate();
             })
@@ -165,15 +188,30 @@ class DatePicker {
             .enter().append("path")
             .attr("d", d => this.pathMonth(d));
 
-        /*const start_box = svg.append("rect")
-            .attr("x", 225)
-            .attr("y", 45)
-            .attr("width", this.cellSize)
-            .attr("height", this.cellSize)
-            .attr("rx", 4)
-            .attr("ry", 4)
-            .attr("class", "hour bordered")
-            .style("fill", "#FFD700");*/
+
+        svg.append("g")
+            .attr("class", "legendLinear")
+            .attr("transform", `translate(${this.width - 1400}, ${this.height - 50})`);
+
+        const legendLinear = d3.legendColor()
+            .shapeWidth(50)
+            .cells(25)
+            .orient("horizontal")
+            .scale(this.colorScale)
+            .labelFormat(".0f");
+
+        svg.select(".legendLinear")
+            .call(legendLinear);
+    }
+
+    updateDatePicker()
+    {
+        const gGroups = d3.selectAll(".date-group");
+
+        const formatDate = d3.timeFormat("%b-%d-%y");
+
+        gGroups.select("rect").classed("selected", false);
+        d3.select(`#${formatDate(this.selectedDateInMilliseconds)}-rect`).classed("selected", true);
     }
 
     // A function that helps draw the border path based on the month and date
