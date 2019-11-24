@@ -1,0 +1,23 @@
+
+.date-group
+{
+    fill: white;
+    stroke: #d2d4d8;
+    stroke-width: 2;
+}
+
+.date-group:hover
+{
+    fill: #feebe2;
+    cursor: pointer;
+}
+
+.date-rect.selected
+{
+    fill: yellow;
+}
+
+.date-text
+{
+    stroke: #d2d4d8;
+}

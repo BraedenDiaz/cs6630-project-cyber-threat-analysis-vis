@@ -27,6 +27,9 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
 
     console.log("Attacks CSV", aggregatedDatesAttacksCSV);
 
+    const datePicker = new DatePicker();
+    datePicker.drawDatePicker();
+
     const worldMap = new Map(aggregatedDatesAttacksCSV);
    
     d3.json("data/world.json").then(mapData => {
