@@ -19,17 +19,17 @@
 
 class Map
 {
-    constructor(cyberAttackDataCSV)
+    constructor(cyberAttackDataCSV, datePicker)
     {
         this.cyberAttackDataCSV = cyberAttackDataCSV;
+        this.datePicker = datePicker;
+
         this.width = 2071;
         this.height = 874;
         this.projection = d3.geoWinkel3().scale(250).translate([this.width / 2, this.height / 2]);
 
-        const parseDateTime = d3.timeParse("%m/%d/%y %H:%M");
-
         // The currently selected date and time in milliseconds since 1 January, 1970, 00:00:00, UTC, with leap seconds ignored
-        this.selectedDate = Date.parse(parseDateTime(this.cyberAttackDataCSV[0].values[0].datetime));
+        this.selectedDate = this.datePicker.date;
 
         this.animationRunning = false;
         this.animationInterval = null;
@@ -186,17 +186,18 @@ class Map
         this.animationRunning = true;
         this.playBtn.text("Stop Animation");
     }
-
-    runAnimation()
-    {
-        this.updateMap();
-    }
-
+    
     stopAnimation()
     {
         clearInterval(this.animationInterval);
         this.animationRunning = false;
         this.playBtn.text("Play Animation");
+    }
+
+    updateDate(newDate)
+    {
+        this.selectedDate = newDate;
+        this.updateMap(this.cyberAttackDataCSV);
     }
 
     drawTimeSlider()

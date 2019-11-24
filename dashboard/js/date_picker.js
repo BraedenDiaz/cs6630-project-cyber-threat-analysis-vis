@@ -8,7 +8,10 @@ class Month {
 }
 
 class DatePicker {
-    constructor() {
+    constructor(cyberAttackDataCSV, selectedDateChanged) {
+        this.cyberAttackDataCSV = cyberAttackDataCSV;
+        this.selectedDateChanged = selectedDateChanged;
+
         this.width = 2071;
         this.height = 550;
         this.cellSize = 45;
@@ -21,14 +24,24 @@ class DatePicker {
 
         this.months = [];
 
-        this.month_strings = ["January", "February", "March"];
+        const parseDateTime = d3.timeParse("%m/%d/%y %H:%M");
+
+        this.firstDay = parseDateTime(this.cyberAttackDataCSV[0].values[0].datetime);
+
+        // The currently selected date and time in milliseconds since 1 January, 1970, 00:00:00, UTC, with leap seconds ignored
+        this.selectedDateInMilliseconds = Date.parse(this.firstDay);
+    }
+
+    get date()
+    {
+        return this.selectedDateInMilliseconds;
     }
 
     drawDatePicker() {
         const that = this;
 
         // Create and add Month objects that correspond with the dataset
-        this.months.push(new Month("March", new Date(2013, 2, 1)));
+        this.months.push(new Month("March",  new Date(2013, 2, 1)));
         this.months.push(new Month("April", new Date(2013, 3, 1)));
         this.months.push(new Month("May", new Date(2013, 4, 1)));
         this.months.push(new Month("June", new Date(2013, 5, 1)));
@@ -37,10 +50,7 @@ class DatePicker {
         this.months.push(new Month("September", new Date(2013, 7, 1)));
 
         // Create the overall SVG that will contain the entire calendar
-        const svg = d3.select("#date-div")
-            .selectAll("svg")
-            .data([2013])
-            .enter().append("svg")
+        const svg = d3.select("#date-div").append("svg")
             .attr("width", this.width)
             .attr("height", this.height);
 
@@ -74,7 +84,7 @@ class DatePicker {
             .data(function (d) {
                 switch (d.month) {
                     case "March":
-                        return d3.timeDays(new Date(2013, 2, 1), new Date(2013, 3, 1));
+                        return d3.timeDays(new Date(2013, 2, 3), new Date(2013, 3, 1));
                     case "April":
                         return d3.timeDays(new Date(2013, 3, 1), new Date(2013, 4, 1));
                     case "May":
@@ -86,7 +96,7 @@ class DatePicker {
                     case "August":
                         return d3.timeDays(new Date(2013, 7, 1), new Date(2013, 8, 1));
                     case "September":
-                        return d3.timeDays(new Date(2013, 8, 1), new Date(2013, 9, 1));
+                        return d3.timeDays(new Date(2013, 8, 1), new Date(2013, 8, 8));
                 }
             });
 
@@ -102,6 +112,8 @@ class DatePicker {
                 return "translate(" + x + "," + y + ")";
             })
             .on("click", d => {
+                this.selectedDateInMilliseconds = Date.parse(d);
+                this.selectedDateChanged(this.selectedDateInMilliseconds);
                 gRects.select("rect").classed("selected", false);
                 d3.select(`#${formatDate(d)}-rect`).classed("selected", true);
             });
@@ -113,7 +125,7 @@ class DatePicker {
             })
             .attr("width", this.cellSize)
             .attr("height", this.cellSize)
-            .attr("class", d => (Date.parse(d) === Date.parse(new Date(2013, 2, 1)) ? "date-rect selected" : "date-rect"))
+            .attr("class", d => (Date.parse(d) === Date.parse(new Date(2013, 2, 3)) ? "date-rect selected" : "date-rect"))
             .attr("rx", 4)
             .attr("ry", 4)
             .datum(d3.timeFormat("%Y-%m-%d"));

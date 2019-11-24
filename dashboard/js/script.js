@@ -5,6 +5,11 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
     const parseDate = d3.timeParse("%m/%d/%y");
     const parseTime = d3.timeParse("%H:%M");
 
+    function selectedDateChanged(newDate)
+    {
+        worldMap.updateDate(newDate);
+    }
+
     // Process the CSV and convert the values to the appropriate type
     const processedAttacksCSV = attacksCSV.map(attack => {
         // Convert the dates and times to Date objects
@@ -27,10 +32,10 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
 
     console.log("Attacks CSV", aggregatedDatesAttacksCSV);
 
-    const datePicker = new DatePicker();
+    const datePicker = new DatePicker(aggregatedDatesAttacksCSV, selectedDateChanged);
     datePicker.drawDatePicker();
 
-    const worldMap = new Map(aggregatedDatesAttacksCSV);
+    const worldMap = new Map(aggregatedDatesAttacksCSV, datePicker);
    
     d3.json("data/world.json").then(mapData => {
         worldMap.drawMap(mapData);
