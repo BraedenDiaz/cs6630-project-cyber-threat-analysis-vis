@@ -121,7 +121,6 @@ class Map
         const formatDate = d3.timeFormat("%-m/%-d/%y");
         const formatTime = d3.timeFormat("%H:%M");
 
-
         for (let attackDate of cyberAttackData)
         {
             if (formatDate(new Date(attackDate.key)) === formatDate(new Date(this.selectedDate)))
@@ -180,7 +179,7 @@ class Map
     playMapAnimation()
     {
         this.animationInterval = setInterval(() => {
-            this.datePicker.date = 60000;
+            this.datePicker.date = this.selectedDate += 60000;
         }, 50);
         this.animationRunning = true;
         this.playBtn.text("Stop Animation");

@@ -35,9 +35,8 @@ class DatePicker {
 
     set date(newDate)
     {
-        this.selectedDateInMilliseconds += newDate;
+        this.selectedDateInMilliseconds = newDate;
         this.selectedDateChanged(this.selectedDateInMilliseconds);
-        this.updateDatePicker();
     }
 
     drawDatePicker() {

@@ -1,0 +1,11 @@
+
+.slider-rect
+{
+    fill: magenta;
+    opacity: 0.7;
+}
+
+.slider-rect:hover
+{
+    cursor: e-resize;
+}

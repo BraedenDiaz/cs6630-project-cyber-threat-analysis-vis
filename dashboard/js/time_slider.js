@@ -17,23 +17,24 @@ class TimeSlider
 
         this.timeScale = null;
         this.attackScale = null;
-    }
-
-    drawTimeSlider()
-    {
 
         console.log("Data", this.cyberAttackDataCSV);
-        const that = this;
 
-        const svg = d3.select("#time-div")
+        this.svg = d3.select("#time-div")
             .append("svg")
                 .attr("width", this.width + this.margin.left + this.margin.right)
                 .attr("height", this.height + this.margin.top + this.margin.bottom)
             .append("g")
                 .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`);
+    }
+
+    drawTimeSlider()
+    {
+        const svg = this.svg;
+
+        svg.html(null);
 
         const formatDate = d3.timeFormat("%-m/%-d/%y");
-        const formatTime = d3.timeFormat("%H:%M");
 
         let selectedDateOnly = Date.parse(new Date(formatDate(this.selectedDate)));
         let selectedDateObj;
@@ -47,7 +48,7 @@ class TimeSlider
             }
         }
 
-        console.log("selectedDateObj", selectedDateObj);
+        //console.log("selectedDateObj", selectedDateObj);
 
         // Aggregate by time
         const aggregatedTime= d3.nest()
@@ -61,7 +62,7 @@ class TimeSlider
             return Date.parse(new Date(a.key)) - Date.parse(new Date(b.key));
         });
 
-        console.log("aggregatedTime", aggregatedTime);
+        //console.log("aggregatedTime", aggregatedTime);
 
         const firstTime = new Date(selectedDateObj.values[0].datetime);
         const lastTime = new Date(selectedDateObj.values[selectedDateObj.values.length - 1].datetime);
@@ -101,6 +102,29 @@ class TimeSlider
             .attr("d", d3.line()
                 .x(d => this.timeScale(new Date(d.key)))
                 .y(d => this.attackScale(d.values.length)));
+
+        const slider = svg.append("rect")
+            .attr("class", "slider-rect")
+            .attr("x", this.timeScale(this.selectedDate))
+            .attr("y", 0)
+            .attr("width", 5)
+            .attr("height", this.height);
+
+        const dragHandler = d3.drag()
+            .on("drag", () => {
+                d3.select(".slider-rect")
+                    .attr("x", d3.event.x);
+
+                this.datePicker.date = this.timeScale.invert(d3.event.x).setSeconds(0);
+            });
+
+        dragHandler(slider);
             
+    }
+
+    updateDate(newDate)
+    {
+        this.selectedDate = newDate;
+        this.drawTimeSlider();
     }
 }
