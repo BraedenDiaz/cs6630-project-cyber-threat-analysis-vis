@@ -11,7 +11,7 @@ class DatePicker {
     constructor(cyberAttackDataCSV, selectedDateChanged) {
         this.cyberAttackDataCSV = cyberAttackDataCSV;
         this.selectedDateChanged = selectedDateChanged;
-
+        
         this.width = 2071;
         this.height = 550;
         this.cellSize = 45;
@@ -89,7 +89,7 @@ class DatePicker {
 
         // Append the month name to the group of months
         monthGroups.append("text")
-            .attr("transform", (d, i) => `translate(-10, ${this.cellSize}) rotate(-90)`)
+            .attr("transform", (d, i) => `translate(-10, ${this.cellSize * 2}) rotate(-90)`)
             .attr("font-family", "sans-serif")
             .attr("font-size", 20)
             .attr("text-anchor", "middle")
@@ -159,8 +159,8 @@ class DatePicker {
                 return d.getDate();
             })
             .attr("class", "date-text")
-            .attr("x", this.cellSize / 2)
-            .attr("y", this.cellSize / 2);
+            .attr("x", (this.cellSize / 2) - 3)
+            .attr("y", (this.cellSize / 2) + 3);
 
         // Create the border around the group of days for one whole month
         monthGroups.append("g")
@@ -189,6 +189,7 @@ class DatePicker {
             .attr("d", d => this.pathMonth(d));
 
 
+        /****** Color Scale Legend ******/
         svg.append("g")
             .attr("class", "legendLinear")
             .attr("transform", `translate(${this.width - 1400}, ${this.height - 50})`);
@@ -204,6 +205,7 @@ class DatePicker {
             .call(legendLinear);
     }
 
+    // Used to update the highlighting of the currently selected date
     updateDatePicker()
     {
         const gGroups = d3.selectAll(".date-group");
