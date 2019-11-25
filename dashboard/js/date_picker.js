@@ -22,9 +22,7 @@ class DatePicker {
 
         this.months = [];
 
-        const parseDateTime = d3.timeParse("%m/%d/%y %H:%M");
-
-        this.firstDay = parseDateTime(this.cyberAttackDataCSV[0].values[0].datetime);
+        this.firstDay = new Date(this.cyberAttackDataCSV[0].values[0].datetime);
 
         // The currently selected date and time in milliseconds since 1 January, 1970, 00:00:00, UTC, with leap seconds ignored
         this.selectedDateInMilliseconds = Date.parse(this.firstDay);

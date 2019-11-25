@@ -2,6 +2,7 @@
 d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
 
     // Use D3 for converting strings to Dates
+    const parseDateTime = d3.timeParse("%m/%d/%y %H:%M");
     const parseDate = d3.timeParse("%m/%d/%y");
     const parseTime = d3.timeParse("%H:%M");
 
@@ -20,6 +21,7 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
         // Convert the dates and times to Date objects
         attack.date = parseDate(attack.datetime.split(' ')[0]);
         attack.time = parseTime(attack.datetime.split(' ')[1]);
+        attack.datetime = parseDateTime(attack.datetime);
 
         // Convert the latitude and longitude into floating point types
         attack.latitude = +attack.latitude;

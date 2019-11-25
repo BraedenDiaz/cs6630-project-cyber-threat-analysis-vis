@@ -47,20 +47,60 @@ class TimeSlider
             }
         }
 
-        // Aggregate by  time
+        console.log("selectedDateObj", selectedDateObj);
+
+        // Aggregate by time
         const aggregatedTime= d3.nest()
             .key(d => {
-                return d.time;
+                return d.datetime;
             })
             .entries(selectedDateObj.values);
 
+        // Sort the array by time
+        aggregatedTime.sort((a, b) => {
+            return Date.parse(new Date(a.key)) - Date.parse(new Date(b.key));
+        });
+
+        console.log("aggregatedTime", aggregatedTime);
+
+        const firstTime = new Date(selectedDateObj.values[0].datetime);
+        const lastTime = new Date(selectedDateObj.values[selectedDateObj.values.length - 1].datetime);
+
         this.timeScale = d3.scaleTime()
-            .domain([new Date(selectedDateObj.key), new Date((new Date(selectedDateObj.key)).setHours(23))])
+            .domain([firstTime, lastTime])
             .range([0, this.width]);
 
-        const xAxis = svg.append("g")
+        const xAxis = d3.axisBottom(this.timeScale);
+        
+        svg.append("g")
             .attr("transform", `translate(0, ${this.height})`)
-            .call(d3.axisBottom(this.timeScale));
+            .call(xAxis);
+
+        let maxNumOfAttacks = 0;
+
+        for (let time of aggregatedTime)
+        {
+            if (time.values.length > maxNumOfAttacks)
+                maxNumOfAttacks = time.values.length;
+        }
+
+        this.attackScale = d3.scaleLinear()
+            .domain([0, maxNumOfAttacks])
+            .range([this.height, 0]);
+
+        const yAxis = d3.axisLeft(this.attackScale);
+
+        svg.append("g")
+            .call(yAxis);
+
+        svg.append("path")
+            .datum(aggregatedTime)
+            .attr("fill", "none")
+            .attr("stroke", "red")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.line()
+                .x(d => this.timeScale(new Date(d.key)))
+                .y(d => this.attackScale(d.values.length)));
             
     }
 }
