@@ -17,7 +17,7 @@
     }
 }*/
 
-class Map
+class WorldMap
 {
     constructor(cyberAttackDataCSV, aggregatedCountriesAttacksCSV, datePicker)
     {
@@ -133,17 +133,11 @@ class Map
            this.previousDate =  formatDate(new Date(this.selectedDate));
         }
 
-        for (let attackDate of this.cyberAttackDataCSV)
-        {
-            if (formatDate(new Date(attackDate.key)) === formatDate(new Date(this.selectedDate)))
-            {
-                selectedDayAttacks = attackDate;
-                break;
-            }
-        }
+        selectedDayAttacks = this.cyberAttackDataCSV.get(formatDate(new Date(this.selectedDate)));
         
 
-        for (let attackTime of selectedDayAttacks.values)
+        /*** Bottleneck!!! ***/
+        for (let attackTime of selectedDayAttacks)
         {
             if (Date.parse(new Date(this.selectedDate)) >= Date.parse(new Date(attackTime.datetime)))
             {
