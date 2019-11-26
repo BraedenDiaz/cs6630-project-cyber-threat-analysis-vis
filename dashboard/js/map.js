@@ -19,14 +19,16 @@
 
 class Map
 {
-    constructor(cyberAttackDataCSV, datePicker)
+    constructor(cyberAttackDataCSV, aggregatedCountriesAttacksCSV, datePicker)
     {
         this.cyberAttackDataCSV = cyberAttackDataCSV;
+        this.aggregatedCountriesAttacksCSV = aggregatedCountriesAttacksCSV;
         this.datePicker = datePicker;
 
         this.finalSelectedAttacks = [];
 
         console.log("Map: Data", this.cyberAttackDataCSV);
+        console.log("Map: Agg Countries", this.aggregatedCountriesAttacksCSV);
 
         this.width = 2071;
         this.height = 874;
@@ -187,7 +189,7 @@ class Map
     {
         this.animationInterval = setInterval(() => {
             this.datePicker.date = this.selectedDate += 60000;
-        }, 100);
+        }, 50);
         this.animationRunning = true;
         this.playBtn.text("Stop Animation");
     }

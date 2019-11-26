@@ -3,8 +3,7 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
 
     // Use D3 for converting strings to Dates
     const parseDateTime = d3.timeParse("%m/%d/%y %H:%M");
-    const parseDate = d3.timeParse("%m/%d/%y");
-    const parseTime = d3.timeParse("%H:%M");
+    const formatDate = d3.timeFormat("%-m/%-d/%y");
 
     function selectedDateChanged(newDate)
     {
@@ -13,16 +12,9 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
         timeSlider.updateDate(newDate);
     }
 
-    function selectedTimeChanged(newTime)
-    {
-
-    }
-
     // Process the CSV and convert the values to the appropriate type
     const processedAttacksCSV = attacksCSV.map(attack => {
-        // Convert the dates and times to Date objects
-        attack.date = parseDate(attack.datetime.split(' ')[0]);
-        attack.time = parseTime(attack.datetime.split(' ')[1]);
+        // Convert the datetime to a Date object
         attack.datetime = parseDateTime(attack.datetime);
 
         // Convert the latitude and longitude into floating point types
@@ -35,17 +27,23 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
     // Aggregate the dataset by the date
     const aggregatedDatesAttacksCSV = d3.nest()
         .key(d => {
-            return d.date;
+            return new Date(formatDate(d.datetime));
+        })
+        .entries(processedAttacksCSV);
+
+    const aggregatedCountriesAttacksCSV = d3.nest()
+        .key(d => {
+            return d.country;
         })
         .entries(processedAttacksCSV);
 
     const datePicker = new DatePicker(aggregatedDatesAttacksCSV, selectedDateChanged);
     datePicker.drawDatePicker();
 
-    const timeSlider = new TimeSlider(aggregatedDatesAttacksCSV, datePicker, selectedTimeChanged);
+    const timeSlider = new TimeSlider(aggregatedDatesAttacksCSV, datePicker);
     timeSlider.drawTimeSlider();
 
-    const worldMap = new Map(aggregatedDatesAttacksCSV, datePicker);
+    const worldMap = new Map(aggregatedDatesAttacksCSV, aggregatedCountriesAttacksCSV, datePicker);
    
     d3.json("data/world.json").then(mapData => {
         worldMap.drawMap(mapData);

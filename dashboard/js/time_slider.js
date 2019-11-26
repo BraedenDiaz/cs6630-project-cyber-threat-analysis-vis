@@ -1,12 +1,10 @@
 
 class TimeSlider
 {
-    constructor(cyberAttackDataCSV, datePicker, selectedTimeChanged)
+    constructor(cyberAttackDataCSV, datePicker)
     {
         this.cyberAttackDataCSV = cyberAttackDataCSV;
         this.datePicker = datePicker;
-        this.selectedTimeChanged = selectedTimeChanged;
-
 
         this.margin = {top: 10, right: 30, bottom: 30, left: 60};
         this.width = 1036 - this.margin.left - this.margin.right;
@@ -17,7 +15,7 @@ class TimeSlider
 
         this.timeScale = null;
         this.attackScale = null;
-        
+
         this.svg = d3.select("#time-div")
             .append("svg")
                 .attr("width", this.width + this.margin.left + this.margin.right)
