@@ -24,12 +24,19 @@ class Map
         this.cyberAttackDataCSV = cyberAttackDataCSV;
         this.datePicker = datePicker;
 
+        this.finalSelectedAttacks = [];
+
+        console.log("Map: Data", this.cyberAttackDataCSV);
+
         this.width = 2071;
         this.height = 874;
         this.projection = d3.geoWinkel3().scale(250).translate([this.width / 2, this.height / 2]);
 
         // The currently selected date and time in milliseconds since 1 January, 1970, 00:00:00, UTC, with leap seconds ignored
         this.selectedDate = this.datePicker.date;
+
+        const formatDate = d3.timeFormat("%-m/%-d/%y");
+        this.previousDate = formatDate(new Date(this.selectedDate));
 
         this.animationRunning = false;
         this.animationInterval = null;
@@ -108,20 +115,23 @@ class Map
             .attr("x", 350)
             .text(formatTime(currentDate));
 
-        this.updateMap(this.cyberAttackDataCSV);
-        
-
+        this.updateMap();
     }
 
-    updateMap(cyberAttackData)
+    updateMap()
     {
         let selectedDayAttacks;
-        let finalSelectedAttacks = [];
 
         const formatDate = d3.timeFormat("%-m/%-d/%y");
         const formatTime = d3.timeFormat("%H:%M");
 
-        for (let attackDate of cyberAttackData)
+        if (formatDate(new Date(this.selectedDate)) !== this.previousDate)
+        {
+           this.finalSelectedAttacks = [];
+           this.previousDate =  formatDate(new Date(this.selectedDate));
+        }
+
+        for (let attackDate of this.cyberAttackDataCSV)
         {
             if (formatDate(new Date(attackDate.key)) === formatDate(new Date(this.selectedDate)))
             {
@@ -133,9 +143,9 @@ class Map
 
         for (let attackTime of selectedDayAttacks.values)
         {
-            if (Math.abs(new Date(this.selectedDate) - new Date(attackTime.datetime)) <= 300000)
+            if (Date.parse(new Date(this.selectedDate)) >= Date.parse(new Date(attackTime.datetime)))
             {
-                finalSelectedAttacks.push(attackTime);
+                this.finalSelectedAttacks.push(attackTime);
             }
         }
 
@@ -143,13 +153,12 @@ class Map
 
         const mapSVG = d3.select("#map-svg");
 
-        const attackGraticuleGroup = mapSVG.append("g")
-            .attr("id", "attack-group");
-
         // Convert the projected latitude and longitude coordinates into an SVG path string
        // const path = d3.geoPath().projection(this.projection);
 
-        let attackBubbles = attackGraticuleGroup.selectAll("circle").data(finalSelectedAttacks);
+        let attackBubbles = mapSVG.selectAll("circle").data(this.finalSelectedAttacks);
+
+        attackBubbles.exit().remove();
 
         const attackBubblesEnter = attackBubbles.enter().append("circle")
             .attr("class", "attack-circle")
@@ -165,8 +174,6 @@ class Map
 
         attackBubbles = attackBubblesEnter.merge(attackBubbles);
 
-        attackBubbles.exit().remove();
-
         const currentDate = new Date(this.selectedDate);
 
         d3.select("#date-label")
@@ -180,7 +187,7 @@ class Map
     {
         this.animationInterval = setInterval(() => {
             this.datePicker.date = this.selectedDate += 60000;
-        }, 50);
+        }, 100);
         this.animationRunning = true;
         this.playBtn.text("Stop Animation");
     }
@@ -195,38 +202,6 @@ class Map
     updateDate(newDate)
     {
         this.selectedDate = newDate;
-        this.updateMap(this.cyberAttackDataCSV);
-    }
-
-    drawTimeSlider()
-    {
-        let that = this;
-
-        let timeScale = d3.scaleLinear().domain([0, 23]).range([30, 730]);
-
-        let timeSlider = d3.select('#selectedTime-slider')
-            .append('div').classed('slider-wrap', true)
-            .append('input').classed('slider', true)
-            .attr('type', 'range')
-            .attr('min', 0)
-            .attr('max', 23)
-            .attr('value', this.selectedTime);
-
-        let sliderLabel = d3.select('.slider-wrap')
-            .append('div').classed('slider-label', true)
-            .append('svg');
-
-        let sliderText = sliderLabel.append('text').text(this.selectedTime);
-
-        sliderText.attr('x', timeScale(this.selectedTime));
-        sliderText.attr('y', 25);
-
-        const slider = d3.select(".slider").node();
-
-        timeSlider.on("input", () => {
-            this.selectedTime = slider.value;
-            sliderText.attr("x", timeScale(that.selectedTime));
-            sliderText.text(that.selectedTime);
-        });
+        this.updateMap();
     }
 }

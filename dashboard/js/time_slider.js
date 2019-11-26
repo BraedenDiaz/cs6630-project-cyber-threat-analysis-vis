@@ -17,9 +17,7 @@ class TimeSlider
 
         this.timeScale = null;
         this.attackScale = null;
-
-        console.log("Data", this.cyberAttackDataCSV);
-
+        
         this.svg = d3.select("#time-div")
             .append("svg")
                 .attr("width", this.width + this.margin.left + this.margin.right)

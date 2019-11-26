@@ -8,6 +8,7 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
 
     function selectedDateChanged(newDate)
     {
+        datePicker.updateDatePicker();
         worldMap.updateDate(newDate);
         timeSlider.updateDate(newDate);
     }
