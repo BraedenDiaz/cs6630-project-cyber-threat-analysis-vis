@@ -109,9 +109,17 @@ class TimeSlider
         const dragHandler = d3.drag()
             .on("drag", () => {
                 d3.select(".slider-rect")
-                    .attr("x", d3.event.x);
+                    .attr("x", () => {
+                        if (d3.event.x < 0)
+                            return 0;
+                        else if (d3.event.x > this.width)
+                            return this.width;
+                        else
+                            return d3.event.x;
+                    });
 
-                this.datePicker.date = this.timeScale.invert(d3.event.x).setSeconds(0);
+                if ((d3.event.x >= 0) && (d3.event.x <= this.width))
+                    this.datePicker.date = this.timeScale.invert(d3.event.x).setSeconds(0);
             });
 
         dragHandler(slider);

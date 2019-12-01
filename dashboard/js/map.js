@@ -38,7 +38,9 @@ class WorldMap
         this.selectedDate = this.datePicker.date;
 
         const formatDate = d3.timeFormat("%-m/%-d/%y");
-        this.previousDate = formatDate(new Date(this.selectedDate));
+        this.previousDate = null;
+
+        this.selectedDayAttacks = null;
 
         this.animationRunning = false;
         this.animationInterval = null;
@@ -122,8 +124,6 @@ class WorldMap
 
     updateMap()
     {
-        let selectedDayAttacks;
-
         const formatDate = d3.timeFormat("%-m/%-d/%y");
         const formatTime = d3.timeFormat("%H:%M");
 
@@ -131,17 +131,26 @@ class WorldMap
         {
            this.finalSelectedAttacks = [];
            this.previousDate =  formatDate(new Date(this.selectedDate));
+           this.selectedDayAttacks = this.cyberAttackDataCSV.get(formatDate(new Date(this.selectedDate)));
+
+           // Aggregate by time
+           this.selectedDayAttacks = d3.nest()
+                .key(d => {
+                    return d.datetime;
+                })
+                .entries(this.selectedDayAttacks);
+
+           this.selectedDayAttacks.sort((a, b) => {
+                return Date.parse(new Date(a.key)) - Date.parse(new Date(b.key));
+            });
         }
 
-        selectedDayAttacks = this.cyberAttackDataCSV.get(formatDate(new Date(this.selectedDate)));
-        
-
-        /*** Bottleneck!!! ***/
-        for (let attackTime of selectedDayAttacks)
+        for (let i = 0; i < this.selectedDayAttacks.length; ++i)
         {
-            if (Date.parse(new Date(this.selectedDate)) >= Date.parse(new Date(attackTime.datetime)))
+            if (Date.parse(new Date(this.selectedDate)) >= Date.parse(new Date(this.selectedDayAttacks[i].key)))
             {
-                this.finalSelectedAttacks.push(attackTime);
+                this.selectedDayAttacks[i].values.forEach(value => this.finalSelectedAttacks.push(value));
+                this.selectedDayAttacks.splice(i, 1);
             }
         }
 
@@ -183,7 +192,7 @@ class WorldMap
     {
         this.animationInterval = setInterval(() => {
             this.datePicker.date = this.selectedDate += 60000;
-        }, 50);
+        }, 75);
         this.animationRunning = true;
         this.playBtn.text("Stop Animation");
     }

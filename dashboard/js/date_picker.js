@@ -132,7 +132,10 @@ class DatePicker {
                         return that.colorScale(attack.values.length);
             })
             .on("click", d => {
-                this.selectedDateInMilliseconds = Date.parse(d);
+                if (formatDate(d) === formatDate(new Date(2013, 2, 3)))
+                    this.selectedDateInMilliseconds = Date.parse(new Date(2013, 2, 3, 21, 53));
+                else
+                    this.selectedDateInMilliseconds = Date.parse(d);
                 this.selectedDateChanged(this.selectedDateInMilliseconds);
                 gGroups.select("rect").classed("selected", false);
                 d3.select(`#${formatDate(d)}-rect`).classed("selected", true);
