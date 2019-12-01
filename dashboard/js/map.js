@@ -27,8 +27,8 @@ class WorldMap
 
         this.finalSelectedAttacks = [];
 
-        console.log("Map: Data", this.cyberAttackDataCSV);
-        console.log("Map: Agg Countries", this.aggregatedCountriesAttacksCSV);
+        //console.log("Map: Data", this.cyberAttackDataCSV);
+       // console.log("Map: Agg Countries", this.aggregatedCountriesAttacksCSV);
 
         this.width = 2071;
         this.height = 874;
@@ -44,6 +44,12 @@ class WorldMap
 
         this.animationRunning = false;
         this.animationInterval = null;
+        this.updateCurrentDataInterval = null;
+
+        this.lockAttacks = false;
+        this.lockAttacksSwitch = document.getElementById("lock-attacks-switch");
+        this.lockAttacksSwitch.addEventListener("click", () => this.lockAttacks = this.lockAttacksSwitch.checked);
+
 
         this.playBtn = d3.select("#play-btn");
 
@@ -122,6 +128,25 @@ class WorldMap
         this.updateMap();
     }
 
+    updateCurrentData()
+    {
+        for (let i = 0; i < this.selectedDayAttacks.length; ++i)
+        {
+            if (Date.parse(new Date(this.selectedDate)) >= Date.parse(new Date(this.selectedDayAttacks[i].key)))
+            {
+                if (this.lockAttacks)
+                {
+                    this.selectedDayAttacks[i].values.forEach(value => this.finalSelectedAttacks.push(value));
+                    this.selectedDayAttacks.splice(i, 1);
+                }
+                else
+                {
+                    this.finalSelectedAttacks = this.selectedDayAttacks[i].values;
+                }
+            }
+        }
+    }
+
     updateMap()
     {
         const formatDate = d3.timeFormat("%-m/%-d/%y");
@@ -133,6 +158,8 @@ class WorldMap
            this.previousDate =  formatDate(new Date(this.selectedDate));
            this.selectedDayAttacks = this.cyberAttackDataCSV.get(formatDate(new Date(this.selectedDate)));
 
+           this.updateCurrentData();
+
            // Aggregate by time
            this.selectedDayAttacks = d3.nest()
                 .key(d => {
@@ -143,15 +170,6 @@ class WorldMap
            this.selectedDayAttacks.sort((a, b) => {
                 return Date.parse(new Date(a.key)) - Date.parse(new Date(b.key));
             });
-        }
-
-        for (let i = 0; i < this.selectedDayAttacks.length; ++i)
-        {
-            if (Date.parse(new Date(this.selectedDate)) >= Date.parse(new Date(this.selectedDayAttacks[i].key)))
-            {
-                this.selectedDayAttacks[i].values.forEach(value => this.finalSelectedAttacks.push(value));
-                this.selectedDayAttacks.splice(i, 1);
-            }
         }
 
         //console.log("Final Selected Attacks", finalSelectedAttacks);
@@ -177,7 +195,7 @@ class WorldMap
             .attr("fill", "red")
             .style("opacity", 0.8);
 
-        attackBubbles = attackBubblesEnter.merge(attackBubbles);
+        //attackBubbles = attackBubblesEnter.merge(attackBubbles);
 
         const currentDate = new Date(this.selectedDate);
 
@@ -190,9 +208,13 @@ class WorldMap
 
     playMapAnimation()
     {
+        this.updateCurrentDataInterval = setInterval(() => {
+            this.updateCurrentData();
+        }, 500);
+
         this.animationInterval = setInterval(() => {
             this.datePicker.date = this.selectedDate += 60000;
-        }, 75);
+        }, 50);
         this.animationRunning = true;
         this.playBtn.text("Stop Animation");
     }
@@ -200,6 +222,7 @@ class WorldMap
     stopAnimation()
     {
         clearInterval(this.animationInterval);
+        clearInterval(this.updateCurrentDataInterval);
         this.animationRunning = false;
         this.playBtn.text("Play Animation");
     }
@@ -207,6 +230,7 @@ class WorldMap
     updateDate(newDate)
     {
         this.selectedDate = newDate;
+        this.updateCurrentData();
         this.updateMap();
     }
 }
