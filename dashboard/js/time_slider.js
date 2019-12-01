@@ -31,18 +31,8 @@ class TimeSlider
         svg.html(null);
 
         const formatDate = d3.timeFormat("%-m/%-d/%y");
-
-        let selectedDateOnly = Date.parse(new Date(formatDate(this.selectedDate)));
-        let selectedDateObj;
-
-        for (let date of this.cyberAttackDataCSV)
-        {
-            if (Date.parse(new Date(date.key)) === selectedDateOnly)
-            {
-                selectedDateObj = date;
-                break;
-            }
-        }
+        const formatTime = d3.timeFormat("%H:%M");
+        const selectedDateObj = this.cyberAttackDataCSV.get(formatDate(this.selectedDate));
 
         //console.log("selectedDateObj", selectedDateObj);
 
@@ -51,7 +41,7 @@ class TimeSlider
             .key(d => {
                 return d.datetime;
             })
-            .entries(selectedDateObj.values);
+            .entries(selectedDateObj);
 
         // Sort the array by time
         aggregatedTime.sort((a, b) => {
@@ -60,8 +50,8 @@ class TimeSlider
 
         //console.log("aggregatedTime", aggregatedTime);
 
-        const firstTime = new Date(selectedDateObj.values[0].datetime);
-        const lastTime = new Date(selectedDateObj.values[selectedDateObj.values.length - 1].datetime);
+        const firstTime = new Date(selectedDateObj[0].datetime);
+        const lastTime = new Date(selectedDateObj[selectedDateObj.length - 1].datetime);
 
         this.timeScale = d3.scaleTime()
             .domain([firstTime, lastTime])
@@ -75,12 +65,15 @@ class TimeSlider
 
         let maxNumOfAttacks = 0;
 
+        const validTimes = [];
+
         for (let time of aggregatedTime)
         {
+            validTimes.push(formatTime(new Date(time.key)));
             if (time.values.length > maxNumOfAttacks)
                 maxNumOfAttacks = time.values.length;
         }
-
+        
         this.attackScale = d3.scaleLinear()
             .domain([0, maxNumOfAttacks])
             .range([this.height, 0]);
@@ -111,15 +104,23 @@ class TimeSlider
                 d3.select(".slider-rect")
                     .attr("x", () => {
                         if (d3.event.x < 0)
+                        {
+                            this.datePicker.date = this.timeScale.invert(0).setSeconds(0);
                             return 0;
+                        }
                         else if (d3.event.x > this.width)
+                        {
+                            this.datePicker.date = this.timeScale.invert(this.width).setSeconds(0);
                             return this.width;
+                        }
+                        else if (validTimes.includes(formatTime(new Date(this.timeScale.invert(d3.event.x).setSeconds(0)))))
+                        {
+                            this.datePicker.date = this.timeScale.invert(d3.event.x).setSeconds(0);
+                            return d3.event.x;
+                        }
                         else
                             return d3.event.x;
                     });
-
-                if ((d3.event.x >= 0) && (d3.event.x <= this.width))
-                    this.datePicker.date = this.timeScale.invert(d3.event.x).setSeconds(0);
             });
 
         dragHandler(slider);

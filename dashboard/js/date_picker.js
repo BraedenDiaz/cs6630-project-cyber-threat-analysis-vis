@@ -111,7 +111,7 @@ class DatePicker {
                     case "August":
                         return d3.timeDays(new Date(2013, 7, 1), new Date(2013, 8, 1));
                     case "September":
-                        return d3.timeDays(new Date(2013, 8, 1), new Date(2013, 8, 8));
+                        return d3.timeDays(new Date(2013, 8, 1), new Date(2013, 8, 9));
                 }
             });
 
@@ -132,6 +132,7 @@ class DatePicker {
                         return that.colorScale(attack.values.length);
             })
             .on("click", d => {
+                // Set the date at the correct time for the first day
                 if (formatDate(d) === formatDate(new Date(2013, 2, 3)))
                     this.selectedDateInMilliseconds = Date.parse(new Date(2013, 2, 3, 21, 53));
                 else

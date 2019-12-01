@@ -45,7 +45,7 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
     const datePicker = new DatePicker(aggregatedDatesAttacksCSV, selectedDateChanged);
     datePicker.drawDatePicker();
 
-    const timeSlider = new TimeSlider(aggregatedDatesAttacksCSV, datePicker);
+    const timeSlider = new TimeSlider(aggregatedDatesAttacksMap, datePicker);
     timeSlider.drawTimeSlider();
 
     const worldMap = new WorldMap(aggregatedDatesAttacksMap, aggregatedCountriesAttacksCSV, datePicker);

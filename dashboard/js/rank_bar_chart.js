@@ -29,15 +29,15 @@ class RankBarChart
             })
             .entries(selectedDayAttacks);
 
-        console.log("aggIP", aggregateAttacksByIP);
+        //console.log("aggIP", aggregateAttacksByIP);
     }
 
     drawBarChart()
     {
         this.updateCurrentData();
 
-        console.log("RankBarChart: Data", this.cyberAttackDataCSV);
-        console.log("RankBarChart: Current Data", this.currentData);
+        //console.log("RankBarChart: Data", this.cyberAttackDataCSV);
+        //console.log("RankBarChart: Current Data", this.currentData);
 
         const svg = d3.select("#ranking-bar-chart-div")
             .append("svg")
