@@ -27,6 +27,20 @@
     visibility: hidden;
 }
 
+/* Tooltip */
+
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  min-width: 60px;
+  height: 200px;
+  padding: 2px;
+  background: white;
+  stroke: gray;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
 /****** Switch ******/
 
 /* The switch - the box around the slider */

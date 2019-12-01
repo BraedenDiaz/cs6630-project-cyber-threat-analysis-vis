@@ -84,6 +84,13 @@ class WorldMap
         const mapGroup = mapSVG.append("g")
             .attr("id", "map-group");
 
+        
+        // Tooltip
+        d3.select("body")
+            .append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
         // Bind the geo data and create one path per GeoJSON feature
         mapGroup.selectAll("path")
             .data(geojson.features)
@@ -125,10 +132,10 @@ class WorldMap
             .attr("x", 350)
             .text(formatTime(currentDate));
 
-        this.updateMap2();
+        this.updateMap();
     }
 
-    updateMap2()
+    updateMap()
     {
         const formatDate = d3.timeFormat("%-m/%-d/%y");
         const formatTime = d3.timeFormat("%H:%M");
@@ -205,6 +212,8 @@ class WorldMap
 
         attackBubbles.exit().remove();
 
+        const tooltipDiv = d3.select(".tooltip");
+
         const attackBubblesEnter = attackBubbles.enter().append("circle")
             .attr("class", "attack-circle")
             .attr("cx", d => {
@@ -215,7 +224,14 @@ class WorldMap
             })
             .attr("r", 5)
             .attr("fill", "red")
-            .style("opacity", 0.8);
+            .style("opacity", 0.8)
+            .on("mouseover", d => {
+                tooltipDiv.html(this.tooltipRender(d))
+                    .style("opacity", 0.9)
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", () => tooltipDiv.style("opacity", 0));
 
         //attackBubbles = attackBubblesEnter.merge(attackBubbles);
 
@@ -228,83 +244,10 @@ class WorldMap
             .text(formatTime(currentDate));
     }
 
-    // updateMap()
-    // {
-    //     const formatDate = d3.timeFormat("%-m/%-d/%y");
-    //     const formatTime = d3.timeFormat("%H:%M");
-
-    //     if (formatDate(new Date(this.selectedDate)) !== this.previousDate)
-    //     {
-    //        this.finalSelectedAttacks = [];
-    //        this.previousDate =  formatDate(new Date(this.selectedDate));
-    //        this.selectedDayAttacks = this.cyberAttackDataCSV.get(formatDate(new Date(this.selectedDate)));
-
-    //        // Aggregate by time
-    //        this.selectedDayAttacks = d3.nest()
-    //             .key(d => {
-    //                 return d.datetime;
-    //             })
-    //             .entries(this.selectedDayAttacks);
-
-    //        this.selectedDayAttacks.sort((a, b) => {
-    //             return Date.parse(new Date(a.key)) - Date.parse(new Date(b.key));
-    //         });
-    //     }
-
-    //     for (let i = 0; i < this.selectedDayAttacks.length; ++i)
-    //     {
-    //         if (Date.parse(new Date(this.selectedDate)) >= Date.parse(new Date(this.selectedDayAttacks[i].key)))
-    //         {
-    //             if (this.lockAttacks)
-    //             {
-    //                 this.selectedDayAttacks[i].values.forEach(value => this.finalSelectedAttacks.push(value));
-    //                 this.selectedDayAttacks.splice(i, 1);
-    //             }
-    //             else
-    //             {
-    //                 this.finalSelectedAttacks = this.selectedDayAttacks[i].values;
-    //             }
-    //         }
-    //     }
-
-    //     //console.log("Final Selected Attacks", finalSelectedAttacks);
-
-    //     const mapSVG = d3.select("#map-svg");
-
-    //     // Convert the projected latitude and longitude coordinates into an SVG path string
-    //    // const path = d3.geoPath().projection(this.projection);
-
-    //     let attackBubbles = mapSVG.selectAll("circle").data(this.finalSelectedAttacks);
-
-    //     attackBubbles.exit().remove();
-
-    //     const attackBubblesEnter = attackBubbles.enter().append("circle")
-    //         .attr("class", "attack-circle")
-    //         .attr("cx", d => {
-    //             return this.projection([d.longitude, d.latitude])[0];
-    //         })
-    //         .attr("cy", d => {
-    //             return this.projection([d.longitude, d.latitude])[1];
-    //         })
-    //         .attr("r", 5)
-    //         .attr("fill", "red")
-    //         .style("opacity", 0.8);
-
-    //     //attackBubbles = attackBubblesEnter.merge(attackBubbles);
-
-    //     const currentDate = new Date(this.selectedDate);
-
-    //     d3.select("#date-label")
-    //         .text(formatDate(currentDate));
-
-    //     d3.select("#time-label")
-    //         .text(formatTime(currentDate));
-    // }
-
     playMapAnimation()
     {
         this.animationInterval = setInterval(() => {
-            this.updateMap2();
+            this.updateMap();
             this.datePicker.date = Date.parse(new Date(this.selectedDayTime.key));
         }, 50);
         this.animationRunning = true;
@@ -321,6 +264,29 @@ class WorldMap
     updateDate(newDate)
     {
         this.selectedDate = newDate;
-        this.updateMap2();
+        this.updateMap();
+    }
+
+    /**
+     * Returns html that can be used to render the tooltip.
+     * 
+     * @param data 
+     * @returns {string}
+     */
+    tooltipRender(data) {
+        // Render the Attacker's IP
+        let text = `<h4><b>Attacker IP: ${data.srcstr}</b></h4>`;
+
+        text = text + `<h5><b>Source Port:</b> ${data.spt}</h5>`;
+
+        text = text + `<h5><b>Country:</b> ${data.country}</h5>`;
+
+        text = text + `<h5><b>Honeypot:</b> ${data.host}</h5>`;
+
+        text = text + `<h5><b>Destination Port:</b> ${data.dpt}</h5>`
+
+        text = text + `<h5><b>Protocol:</b> ${data.proto}</h5>`;
+
+        return text;
     }
 }
