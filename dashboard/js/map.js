@@ -46,10 +46,15 @@ class WorldMap
         this.animationRunning = false;
         this.animationInterval = null;
 
-        this.lockAttacks = false;
         this.lockAttacksSwitch = document.getElementById("lock-attacks-switch");
+        this.lockAttacks = this.lockAttacksSwitch.checked;
         this.lockAttacksSwitch.addEventListener("click", () => this.lockAttacks = this.lockAttacksSwitch.checked);
 
+
+        this.speedDropdown = document.getElementById("speed-dropdown");
+        this.speedDropdown.value = "Fast";
+        this.animationSpeed = this.changeAnimationSpeed(this.speedDropdown.value);
+        this.speedDropdown.addEventListener("change", () => this.animationSpeed = this.changeAnimationSpeed(this.speedDropdown.value));
 
         this.playBtn = d3.select("#play-btn");
 
@@ -57,12 +62,31 @@ class WorldMap
                 if (this.animationRunning)
                 {
                     this.stopAnimation();
+                    this.speedDropdown.disabled = false;
                 }
                 else
                 {
+                    this.speedDropdown.disabled = true;
                     this.playMapAnimation();
                 }
             })
+    }
+
+    changeAnimationSpeed(newSpeed)
+    {
+        switch(newSpeed)
+        {
+            case "Slow":
+                return 1000;
+            case "Medium":
+                return 500;
+            case "Fast":
+                return 100;
+            case "Really Fast":
+                return 50;
+            default:
+                return 1000;
+        }
     }
 
     /**
@@ -249,7 +273,7 @@ class WorldMap
         this.animationInterval = setInterval(() => {
             this.updateMap();
             this.datePicker.date = Date.parse(new Date(this.selectedDayTime.key));
-        }, 50);
+        }, this.animationSpeed);
         this.animationRunning = true;
         this.playBtn.text("Stop Animation");
     }

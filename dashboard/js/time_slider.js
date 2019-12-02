@@ -99,27 +99,35 @@ class TimeSlider
             .attr("width", 5)
             .attr("height", this.height);
 
+        let previousX = 0;
+
         const dragHandler = d3.drag()
             .on("drag", () => {
                 d3.select(".slider-rect")
                     .attr("x", () => {
-                        if (d3.event.x < 0)
+                        if (d3.event.dx > 0)
                         {
-                            this.datePicker.date = this.timeScale.invert(0).setSeconds(0);
-                            return 0;
-                        }
-                        else if (d3.event.x > this.width)
-                        {
-                            this.datePicker.date = this.timeScale.invert(this.width).setSeconds(0);
-                            return this.width;
-                        }
-                        else if (validTimes.includes(formatTime(new Date(this.timeScale.invert(d3.event.x).setSeconds(0)))))
-                        {
-                            this.datePicker.date = this.timeScale.invert(d3.event.x).setSeconds(0);
-                            return d3.event.x;
+                            if (d3.event.x < 0)
+                            {
+                                this.datePicker.date = this.timeScale.invert(0).setSeconds(0);
+                                return 0;
+                            }
+                            else if (d3.event.x > this.width)
+                            {
+                                this.datePicker.date = this.timeScale.invert(this.width).setSeconds(0);
+                                return this.width;
+                            }
+                            else if (validTimes.includes(formatTime(new Date(this.timeScale.invert(d3.event.x).setSeconds(0)))))
+                            {
+                                this.datePicker.date = this.timeScale.invert(d3.event.x).setSeconds(0);
+                                previousX = d3.event.x;
+                                return d3.event.x;
+                            }
+                            else
+                                return d3.event.x;
                         }
                         else
-                            return d3.event.x;
+                            return previousX;
                     });
             });
 

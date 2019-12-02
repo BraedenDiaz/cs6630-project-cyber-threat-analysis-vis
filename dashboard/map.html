@@ -147,13 +147,13 @@
           <div id="selectedTime-slider">
             Time
           </div> -->
-          <div class="btn-toolbar mb-3 mb-md-0">
+          <!--<div class="btn-toolbar mb-3 mb-md-0">
             <div class="btn-group mr-3">
               <button id="play-btn" type="button" class="btn btn-sm btn-outline-secondary">Play Animation</button>
               <button type="button" class="btn btn-sm btn-outline-secondary">Map</button>
               <button type="button" class="btn btn-sm btn-outline-secondary">Globe</button>
             </div>
-            <!--<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="feather feather-calendar">
@@ -163,8 +163,8 @@
                 <line x1="3" y1="10" x2="21" y2="10"></line>
               </svg>
               Date
-            </button>-->
-          </div>
+            </button>
+          </div>-->
         </div>
 
         <div id="date-div" class="d-flex flex-wrap flex-md-nowrap pt-3 pb-2 mb-3 border-bottom">
@@ -175,12 +175,35 @@
           <h2 class="h2">Time:</h2>
         </div>
 
-        <b>Lock Attacks</b>
-        <!-- Rounded switch -->
-        <label class="switch">
-            <input id="lock-attacks-switch" type="checkbox">
-            <span class="slider round"></span>
-        </label>
+        <div id="controls-div"
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h3>Controls</h3>
+
+          <div class="btn-toolbar mb-1 mb-md-0">
+            <div class="btn-group mr-1">
+              <button id="play-btn" type="button" class="btn btn-sm btn-outline-secondary">Play Animation</button>
+            </div>
+          </div>
+
+          <div>
+            <b>Speed</b>
+            <select id="speed-dropdown">
+              <option value="Slow">Slow</option>
+              <option value="Medium">Medium</option>
+              <option value="Fast">Fast</option>
+              <option value="Really Fast">Really Fast</option>
+            </select>
+          </div>
+
+          <div>
+            <b>Lock Attacks to Map</b>
+            <!-- Rounded switch -->
+            <label class="switch">
+              <input id="lock-attacks-switch" type="checkbox" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
 
         <div id="map-div">
           <svg class="my-4 w-100 chartjs-render-monitor" id="map-svg" width="2071" height="874"
