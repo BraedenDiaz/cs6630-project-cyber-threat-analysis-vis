@@ -105,7 +105,9 @@ class TimeSlider
             .on("drag", () => {
                 d3.select(".slider-rect")
                     .attr("x", () => {
-                        if (d3.event.dx > 0)
+                        const lockAttacksSwitch = document.getElementById("lock-attacks-switch");
+
+                        if (d3.event.dx > 0 || !lockAttacksSwitch.checked)
                         {
                             if (d3.event.x < 0)
                             {

@@ -54,6 +54,6 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
         worldMap.drawMap(mapData);
     });
 
-    const rankBarChart = new RankBarChart(aggregatedDatesAttacksMap, datePicker);
-    rankBarChart.drawBarChart();
+    // const rankBarChart = new RankBarChart(aggregatedDatesAttacksMap, datePicker);
+    // rankBarChart.drawBarChart();
 })
