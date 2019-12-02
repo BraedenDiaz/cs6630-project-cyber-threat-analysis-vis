@@ -9,7 +9,6 @@ d3.csv("data/AWS_Honeypot_marx-geo.csv").then(attacksCSV => {
         datePicker.updateDatePicker();
         worldMap.updateDate(newDate);
         timeSlider.updateDate(newDate);
-        rankBarChart.updateDate(newDate);
     }
 
     // Process the CSV and convert the values to the appropriate type
